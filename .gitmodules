@@ -1,0 +1,9 @@
+[submodule "IKS01Ax_Components"]
+	path = IKS01Ax_Components
+	url = https://github.com/ATM-HSW/IKS01Ax_Components.git
+[submodule "X_NUCLEO_COMMON"]
+	path = X_NUCLEO_COMMON
+	url = https://github.com/ATM-HSW/X_NUCLEO_COMMON.git
+[submodule "ST_INTERFACES"]
+	path = ST_INTERFACES
+	url = https://github.com/ATM-HSW/ST_INTERFACES.git

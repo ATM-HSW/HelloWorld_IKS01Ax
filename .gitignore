@@ -1,0 +1,10 @@
+*.bak
+GettingStarted.html
+.link_script.sct
+.mbed
+*.uvoptx
+*.uvprojx
+BUILD/
+DebugConfig/
+mbed_config.h
+*.oh
