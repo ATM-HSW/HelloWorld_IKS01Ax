@@ -40,54 +40,59 @@
 #include "mbed.h"
 #include "rtos.h"
 
-#define IKS01A1
+//#define IKS01A1
 //#define IKS01A2
-//#define IKS01A3
+#define IKS01A3
 
 #ifdef IKS01A1
 #include "x_nucleo_iks01a1.h"
+
+#define BOARD_NAME "X_NUCLEO_IKS01A1"
 
 /* Instantiate the expansion board */
 static X_NUCLEO_IKS01A1 *mems_expansion_board = X_NUCLEO_IKS01A1::Instance(D14, D15, D4);
 
 /* Retrieve the composing elements of the expansion board */
+static HTS221Sensor *hum_temp       = mems_expansion_board->ht_sensor;
+static LPS25H *press_temp           = mems_expansion_board->pt_sensor;
+static TempSensor *temp             = NULL;
 static MagneticSensor *magnetometer = mems_expansion_board->magnetometer;
-static HTS221Sensor *hum_temp = mems_expansion_board->ht_sensor;
-static LPS25H *press_temp = mems_expansion_board->pt_sensor;
-static LSM6DSOSensor *acc_gyro = mems_expansion_board->acc_gyro;
-static MotionSensor *accelerometer = NULL; //mems_expansion_board->GetAccelerometer();
-static TempSensor *temp = NULL;
+static LSM6DSOSensor *acc_gyro      = mems_expansion_board->acc_gyro;
+static MotionSensor *accelerometer  = NULL; //mems_expansion_board->GetAccelerometer();
 #endif
 
 #ifdef IKS01A2
 #include "XNucleoIKS01A2.h"
 
+#define BOARD_NAME "X_NUCLEO_IKS01A2"
+
 /* Instantiate the expansion board */
 static XNucleoIKS01A2 *mems_expansion_board = XNucleoIKS01A2::instance(D14, D15, D4, D5);
 
 /* Retrieve the composing elements of the expansion board */
-static LSM303AGRMagSensor *magnetometer = mems_expansion_board->magnetometer;
-static HTS221Sensor *hum_temp = mems_expansion_board->ht_sensor;
-static LPS22HBSensor *press_temp = mems_expansion_board->pt_sensor;
-static LSM6DSLSensor *acc_gyro = mems_expansion_board->acc_gyro;
+static HTS221Sensor            *hum_temp = mems_expansion_board->ht_sensor;
+static LPS22HBSensor         *press_temp = mems_expansion_board->pt_sensor;
+static TempSensor                  *temp = NULL;
+static LSM303AGRMagSensor  *magnetometer = mems_expansion_board->magnetometer;
 static LSM303AGRAccSensor *accelerometer = mems_expansion_board->accelerometer;
-static TempSensor *temp = NULL;
+static LSM6DSLSensor           *acc_gyro = mems_expansion_board->acc_gyro;
 #endif
 
 #ifdef IKS01A3 
-
 #include "XNucleoIKS01A3.h"
+
+#define BOARD_NAME "X_NUCLEO_IKS01A3"
 
 /* Instantiate the expansion board */
 static XNucleoIKS01A3 *mems_expansion_board = XNucleoIKS01A3::instance(D14, D15, D4, D5, A3, D6, A4);
 
 /* Retrieve the composing elements of the expansion board */
-static LIS2MDLSensor *magnetometer = mems_expansion_board->magnetometer;
-static HTS221Sensor *hum_temp = mems_expansion_board->ht_sensor;
-static LPS22HHSensor *press_temp = mems_expansion_board->pt_sensor;
-static LSM6DSOSensor *acc_gyro = mems_expansion_board->acc_gyro;
+static HTS221Sensor *hum_temp        = mems_expansion_board->ht_sensor;
+static LPS22HHSensor *press_temp     = mems_expansion_board->pt_sensor;
+static STTS751Sensor *temp           = mems_expansion_board->t_sensor;
+static LIS2MDLSensor *magnetometer   = mems_expansion_board->magnetometer;
+static LSM6DSOSensor *acc_gyro       = mems_expansion_board->acc_gyro;
 static LIS2DW12Sensor *accelerometer = mems_expansion_board->accelerometer;
-static STTS751Sensor *temp = mems_expansion_board->t_sensor;
 #endif
 
 
@@ -128,7 +133,7 @@ static char *print_double(char *str, double v, int decimalDigits = 2) {
 
 /* Simple main function */
 int main() {
-  uint8_t id;
+  uint8_t id, isLSM303AGR=false;
   float value1, value2;
   char buffer1[32], buffer2[32];
   int32_t axes[3];
@@ -148,6 +153,7 @@ int main() {
   acc_gyro->enable();
 
   printf("\r\n--- Starting new run ---\r\n");
+	printf("--- %s ---\r\n", BOARD_NAME);
 
   hum_temp->read_id(&id);
   switch(id) {
@@ -190,20 +196,6 @@ int main() {
     printf("temperature                  = 0x%X(%s)\r\n", id, temp_name);
 	}
 
-  magnetometer->read_id(&id);
-  switch(id) {
-    case 0x3d:
-      magnetometer_name = (char*)"LIS3MDL";
-      break;
-    case 0x40:
-      magnetometer_name = (char*)"LIS2MDL";
-      break;
-    default:
-      magnetometer_name = (char*)"unknown";
-      break;
-  }
-  printf("magnetometer                 = 0x%X(%s)\r\n", id, magnetometer_name);
-
   if(accelerometer!=NULL) {
 		accelerometer->read_id(&id);
 		switch(id) {
@@ -212,6 +204,7 @@ int main() {
 				break;
 			case 0x33:
 				accelerometer_name = (char*)"LSM303AGR";
+			  isLSM303AGR = true;
 				break;
 			default:
 				accelerometer_name = (char*)"unknown";
@@ -220,10 +213,29 @@ int main() {
     printf("accelerometer                = 0x%X(%s)\r\n", id, accelerometer_name);
 	}
 
+  magnetometer->read_id(&id);
+  switch(id) {
+    case 0x3d:
+      magnetometer_name = (char*)"LIS3MDL";
+      break;
+    case 0x40:
+			if(!isLSM303AGR)
+				magnetometer_name = (char*)"LIS2MDL";
+			else
+			  magnetometer_name = (char*)"LSM303AGR"; // LSM303AGR has 2 i2c addressen and two WhoAmI registers 0x0f (for accelerometer) and 0x4f (for magnetometer)
+			                                          // the magnetometer id is identical to LIS2MDL
+      break;
+    default:
+      magnetometer_name = (char*)"unknown";
+      break;
+  }
+  printf("magnetometer                 = 0x%X(%s)\r\n", id, magnetometer_name);
+
   acc_gyro->read_id(&id);
   switch(id) {
     case 0x68:
-      acc_gyro_name = (char*)"LSM6DSO ?? LSM9DS1";  // the chip id correspondes to LSM9DS1 and not LSM6DSO
+			// the chip id correspondes to LSM9DS1 and not LSM6DSO but the chip doesn't behaves like an LSM9DS1
+      acc_gyro_name = (char*)"LSM6DSO ?? LSM9DS1";
       break;
     case 0x6c:
       acc_gyro_name = (char*)"LSM6DSO";

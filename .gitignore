@@ -8,3 +8,4 @@ BUILD/
 DebugConfig/
 mbed_config.h
 *.oh
+EventRecorderStub.scvd
