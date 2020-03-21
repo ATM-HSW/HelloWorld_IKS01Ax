@@ -1,6 +1,6 @@
 # X_NUCLEO_IKS01Ax(1,2 and 3)
 
-Firmware Library for X-NUCLEO-IKS01Ax(1,2 and 3) (MEMS Inertial & Environmental Sensors) Expansion Boards
+Unified Firmware Library for X-NUCLEO-IKS01Ax(1,2 and 3) (MEMS Inertial & Environmental Sensors) Expansion Boards based on the original repository submitted by the [Mbed ST team](https://os.mbed.com/teams/ST/code/)
 
 ## Introduction
 
@@ -49,10 +49,38 @@ Furthermore, library ST_INTERFACES contains all abstract classes which together 
 ## Cloning
 
 ```
-git clone https://github.com/ATM-HSW/HelloWorld_IKS01Ax.git
-cd HelloWorld_IKS01Ax
+git clone https://github.com/ATM-HSW/X_NUCLEO_IKS01Ax_HelloWorld.git
+cd X_NUCLEO_IKS01Ax_HelloWorld
 git submodule init
 git submodule update
 ```
 
 or download release zip file containing all sources
+
+## Building
+
+The repository contains a batch file to create projects file for an offline toolchain: `exportv2.bat` 
+
+With some variable at the beginning the output can be configured:
+
+```
+set mbedos=mbed-os-5.14.2
+
+set platform=NUCLEO_F446RE
+rem set platform=AUTO
+
+set ide=uvision6
+rem set ide=gcc_arm
+```
+
+The script expects the following folder structure:
+
+```
+projectfolder
+  |
+  |-- mbed-os-5.14.2
+  |-- X_NUCLEO_IKS01Ax_HelloWorld
+  |-- ...
+```
+
+The Mbed OS version 5.14.2 was used for testing, others may work without changes.
