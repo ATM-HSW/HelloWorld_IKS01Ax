@@ -1,6 +1,6 @@
 [submodule "X_NUCLEO_IKS01Ax_Components"]
 	path = X_NUCLEO_IKS01Ax_Components
-url=https://github.com/ATM-HSW/X_NUCLEO_IKS01Ax_Components.git
+	url = https://github.com/ATM-HSW/X_NUCLEO_IKS01Ax_Components.git
 [submodule "X_NUCLEO_COMMON"]
 	path = X_NUCLEO_COMMON
 	url = https://github.com/ATM-HSW/X_NUCLEO_COMMON.git
