@@ -7,3 +7,6 @@
 [submodule "ST_INTERFACES"]
 	path = ST_INTERFACES
 	url = https://github.com/ATM-HSW/ST_INTERFACES.git
+[submodule "X_NUCLEO_IKS01Ax"]
+	path = X_NUCLEO_IKS01Ax
+	url = https://github.com/ATM-HSW/X_NUCLEO_IKS01Ax.git
